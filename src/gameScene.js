@@ -1,5 +1,6 @@
 // src/gameScene.js
 import { GameEvents } from './events.js';
+import { GameData } from './data.js';
 
 import { HexTile, TERRAIN_TYPES, HEX_SIZE } from './HexTile.js';
 
@@ -39,6 +40,13 @@ export default class GameScene extends Phaser.Scene {
             this.physics.resume();
         });
 
+        this.events.on('tileClicked', (tile) => {
+
+            //console.log(`(${tile.q}, ${tile.r}) | 지형: ${tile.terrain.name}`);
+            this.mapGrid[tile.r][tile.q] = tile.terrain.id; // 클릭된 타일의 지형 ID를 맵 데이터에 반영
+            this.saveMapGrid(); // 타일 클릭 시마다 맵 데이터 저장
+        });
+
         // 씬 종료 시 이벤트 해제
         this.events.once('shutdown', () => {
             uiScene.events.off(GameEvents.GAME_RESUMED, this.resumeGame, this);
@@ -46,20 +54,66 @@ export default class GameScene extends Phaser.Scene {
         //////////////////
         // 1. 2D 맵 지형 데이터 정의 (코드/JSON/랜덤 생성 가능)
         // 0: 초원, 1: 산, 2: 강, 3: 도로, 4: 건물
-        const mapGrid = [
-            [0, 3, 3, 1, 3],
-            [0, 3, 1, 3, 3],
-            [3, 3, 1, 3, 3],
-            [3, 3, 1, 2, 2],
-            [0, 3, 3, 2, 2]
+        
+        
+
+        
+        this.mapGrid = [
+            [0, 3, 3, 1, 3, 3, 3, 3],
+            [0, 3, 1, 3, 3, 3, 3, 3],
+            [3, 3, 1, 3, 3, 3, 3, 0],
+            [3, 3, 1, 2, 2, 3, 0, 0],
+            [3, 3, 3, 2, 2, 3, 0, 0],
+            [0, 3, 3, 3, 3, 0, 0, 0]
         ];
+        GameData.load();
+        if(GameData.saveData.mapGrid && GameData.saveData.mapGrid.length > 0){
+            this.mapGrid = GameData.saveData.mapGrid;
+        }else{
+            this.saveMapGrid();
+        }
+         console.log('GameScene에서 불러온 게임 데이터:', GameData);
 
         // 2. 맵 데이터 바탕으로 인스턴스 배치
-        this.generateHexMapFromGrid(mapGrid);
+        this.generateHexMapFromGrid(this.mapGrid);
 
         // 3. 카메라 드래그 이동 설정
         this.setupCameraControls();
+
+        // 4. 임시 브러시 버튼 생성
+        this.generateBrush();
     }
+    //임시
+    saveMapGrid(){
+        GameData.saveData.mapGrid = this.mapGrid;
+        GameData.save();
+        //console.log('맵 데이터 저장 완료:', GameData.mapGrid);
+    }
+    mapNumber = 0;//
+    generateBrush(){
+        const uiScene = this.scene.get('UIScene');
+        const buttonbox = uiScene.add.rectangle(80, 50, 120, 40, 0x222222, 0.95)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                //console.log('Brush button clicked!');
+                this.mapNumber = (this.mapNumber + 1) % 5; // 0~4 반복
+
+                this.brushName();
+                // 브러시 모드 활성화 로직 추가
+            });
+
+        const buttonText = uiScene.add.text(80, 50, 'Brush', { fontSize: '20px', fill: '#fff' })
+            .setOrigin(0.5)
+       
+        this.brushName = function() {
+            const terrainType = Object.values(TERRAIN_TYPES).find(t => t.id === this.mapNumber) || TERRAIN_TYPES.EMPTY;
+            buttonText.setText(`Brush: ${terrainType.name}`);
+        };
+        this.brushName();
+    }
+
+    
 
     // Axial 좌표 (q, r) -> 화면 픽셀 좌표 (x, y) 변환식
     axialToPixel(q, r) {

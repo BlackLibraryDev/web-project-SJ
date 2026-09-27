@@ -40,8 +40,14 @@ export class HexTile extends Phaser.GameObjects.Container {
 
         // 마우스 상호작용 이벤트
         this.on('pointerdown', () => {
-            console.log(`(${this.q}, ${this.r}) | 지형: ${this.terrain.name}`);
-            scene.events.emit('tileClicked', this);
+
+            //임시로 씬의 mapNumber를 참조하여 지형 변경
+            this.terrain = Object.values(TERRAIN_TYPES).find(t => t.id === this.scene.mapNumber) || TERRAIN_TYPES.EMPTY;
+            this.drawHexagon(this.terrain.color);
+            
+            //console.log(this.scene.mapNumber);
+            //console.log(`(${this.q}, ${this.r}) | 지형: ${this.terrain.name}`);
+            this.scene.events.emit('tileClicked', this);
         });
 
         this.on('pointerover', () => {
