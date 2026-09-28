@@ -10,7 +10,7 @@ export const GameData = {
 
     save() {
         localStorage.setItem('my_game_data', JSON.stringify(this.saveData));
-        console.log('게임 데이터 저장 완료', this.saveData.mapGrid);
+        console.log('게임 데이터 저장 완료');
     },
 
     load() {

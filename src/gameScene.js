@@ -72,7 +72,7 @@ export default class GameScene extends Phaser.Scene {
         }else{
             this.saveMapGrid();
         }
-         console.log('GameScene에서 불러온 게임 데이터:', GameData);
+         //console.log('GameScene에서 불러온 게임 데이터:', GameData);
 
         // 2. 맵 데이터 바탕으로 인스턴스 배치
         this.generateHexMapFromGrid(this.mapGrid);
@@ -111,6 +111,74 @@ export default class GameScene extends Phaser.Scene {
             buttonText.setText(`Brush: ${terrainType.name}`);
         };
         this.brushName();
+
+        const mapExtensionButton = uiScene.add.rectangle(80, 180, 40, 40, 0x222222, 0.95)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                // 맵 확장 로직
+                this.extendMap();
+            });
+        this.extendMap = function() {
+            const newRow = new Array(this.mapGrid[0].length).fill(0); // 새로운 행 생성 (초원으로 초기화)
+            this.mapGrid.push(newRow); // 맵 데이터에 새로운 행 추가
+            this.saveMapGrid(); // 변경된 맵 데이터 저장
+            this.clearHexMap();
+            this.generateHexMapFromGrid(this.mapGrid); // 새로운 맵 데이터로 타일 재생성
+        }
+
+
+        const mapUnextensionButton = uiScene.add.rectangle(80, 100, 40, 40, 0x222222, 0.95)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                // 맵 축소 로직
+                this.reduceMap();
+            });
+        
+        this.reduceMap = function() {
+            if (this.mapGrid.length > 1) { // 최소 1행은 남겨둠
+                this.mapGrid.pop(); // 마지막 행 제거
+                this.saveMapGrid(); // 변경된 맵 데이터 저장
+                this.clearHexMap();
+                this.generateHexMapFromGrid(this.mapGrid); // 새로운 맵 데이터로 타일 재생성
+            }
+        }
+
+        const mapLengthExtensionButton = uiScene.add.rectangle(120, 140, 40, 40, 0x222222, 0.95)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                // 맵 길이 확장 로직
+                this.extendMapLength();
+            });
+        this.extendMapLength = function() {
+            for (let i = 0; i < this.mapGrid.length; i++) {
+                this.mapGrid[i].push(0); // 각 행에 새로운 열 추가 (초원으로 초기화)
+            }
+            this.saveMapGrid(); // 변경된 맵 데이터 저장
+            this.clearHexMap();
+            this.generateHexMapFromGrid(this.mapGrid); // 새로운 맵 데이터로 타일 재생성
+        }
+
+        const mapLengthUnextensionButton = uiScene.add.rectangle(40, 140, 40, 40, 0x222222, 0.95)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                // 맵 길이 축소 로직
+                this.reduceMapLength();
+            });
+        
+        this.reduceMapLength = function() {
+            if (this.mapGrid[0].length > 1) { // 최소 1열은 남겨둠
+                for (let i = 0; i < this.mapGrid.length; i++) {
+                    this.mapGrid[i].pop(); // 각 행에서 마지막 열 제거
+                }
+                this.saveMapGrid(); // 변경된 맵 데이터 저장
+                this.clearHexMap();
+                this.generateHexMapFromGrid(this.mapGrid); // 새로운 맵 데이터로 타일 재생성
+            }
+        }
     }
 
     
@@ -121,7 +189,13 @@ export default class GameScene extends Phaser.Scene {
         const y = HEX_SIZE * (3 / 2 * r);
         return { x, y };
     }
-
+    clearHexMap(){
+        // 기존 타일 인스턴스 제거
+        this.tileMap.forEach(tile => {
+            tile.destroy();
+        });
+        this.tileMap.clear();
+    }
     generateHexMapFromGrid(grid) {
         const startX = 200; // 맵 시작 X 오프셋
         const startY = 150; // 맵 시작 Y 오프셋

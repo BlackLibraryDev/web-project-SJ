@@ -1,5 +1,5 @@
 // src/HexTile.js
-export const HEX_SIZE = 60; // 타일 반지름(px)
+export const HEX_SIZE = 40; // 타일 반지름(px)
 
 // 지형 정의 (이동 비용, 색상 등)
 export const TERRAIN_TYPES = {
@@ -47,7 +47,7 @@ export class HexTile extends Phaser.GameObjects.Container {
             
             //console.log(this.scene.mapNumber);
             //console.log(`(${this.q}, ${this.r}) | 지형: ${this.terrain.name}`);
-            this.scene.events.emit('tileClicked', this);
+            scene.events.emit('tileClicked', this);
         });
 
         this.on('pointerover', () => {
