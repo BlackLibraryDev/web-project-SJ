@@ -1,5 +1,6 @@
 // src/UIscene.js
 import { GameEvents } from './events.js';
+import { LanguageData } from './translate.js';
 
 export default class UIScene extends Phaser.Scene {
     constructor() {
@@ -44,7 +45,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     make_pauseManuContainer() {
-         this.pauseMenuContainer = this.add.container(this.scale.width / 2, this.scale.height / 2);
+            this.pauseMenuContainer = this.add.container(this.scale.width / 2, this.scale.height / 2);
         this.pauseMenuContainer.setVisible(false);
 
         // 어두운 반투명 배경 레이어 (화면 전체 덮기)
@@ -55,13 +56,13 @@ export default class UIScene extends Phaser.Scene {
         const menuBg = this.add.rectangle(0, 0, 320, 240, 0x222222, 0.95)
             .setStrokeStyle(2, 0xffffff);
 
-        const titleText = this.add.text(0, -80, 'PAUSED', {
+        const titleText = this.add.text(0, -80, LanguageData.get('paused'), {
             fontSize: '28px',
             fill: '#ffffff'
         }).setOrigin(0.5);
 
         // 계속하기 (Resume) 버튼
-        const resumeBtn = this.add.text(0, -10, '[ 계속하기 ]', {
+        const resumeBtn = this.add.text(0, -10, LanguageData.get('resume'), {
             fontSize: '20px',
             fill: '#00ff00'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
@@ -72,7 +73,7 @@ export default class UIScene extends Phaser.Scene {
         });
 
         // 메인 메뉴로 이동 버튼
-        const mainBtn = this.add.text(0, 40, '[ 메인 메뉴로 ]', {
+        const mainBtn = this.add.text(0, 40, LanguageData.get('main_menu'), {
             fontSize: '20px',
             fill: '#ff4444'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
