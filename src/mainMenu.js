@@ -17,5 +17,12 @@ export default class MainMenuScene extends Phaser.Scene {
         startButton.on('pointerdown', () => {
             this.scene.start('GameScene');
         });
+        
+        //빌드
+        const build ='build 20261007-1'
+        
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
+        const buildText = this.add.text(10, height-10, build,{fontSize:'16px'}).setOrigin(0,1);
     }
 }
